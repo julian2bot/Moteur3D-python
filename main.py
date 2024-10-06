@@ -51,7 +51,7 @@ def inputs(dt: float):
 dernier = 0
 
 while True:
-    
+
     temps_actuelle = time.time()
     dt = (temps_actuelle - dernier) * 100
     dernier = temps_actuelle

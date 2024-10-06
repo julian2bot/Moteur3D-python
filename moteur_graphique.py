@@ -13,12 +13,12 @@ def draw() -> None:
     print(''.join(pixelBuffer), end="")
 
 
-def clear(char : str) -> None:
+def clear(char: str) -> None:
     for i in range(width * height):
         pixelBuffer[i] = char
 
 
-def putPixel(V : Vec2, char: str) -> None:
+def putPixel(V: Vec2, char: str) -> None:
     px = round(V.x)
     py = round(V.y)
     if (0 <= px <= width and 0 <= py <= height):
@@ -27,10 +27,10 @@ def putPixel(V : Vec2, char: str) -> None:
 
 def putTriangle(tri: Triangle3D, char: str) -> None:
 
-    def E(p:Vec2, a:Vec2, b:Vec2) -> int:
+    def E(p: Vec2, a: Vec2, b: Vec2) -> int:
         return (a.x - p.x) * (b.y - p.y) - (a.y - p.y) * (b.x - p.x)
 
-    def est_dans_le_triangle(v1:Vec2, v2:Vec2, v3:Vec2, p:Vec2) -> bool:
+    def est_dans_le_triangle(v1: Vec2, v2: Vec2, v3: Vec2, p: Vec2) -> bool:
         return E(v3, v1, p) > 0 and E(v2, v3, p) > 0 and E(v1, v2, p) > 0 or E(
             v3, v1, p) < 0 and E(v2, v3, p) < 0 and E(v1, v2, p) < 0
 

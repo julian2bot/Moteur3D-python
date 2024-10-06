@@ -20,5 +20,5 @@ class Camera:
     def getForwardDirection(self) -> Vec3:
         return Vec3(-math.sin(self.yaw), 0, math.cos(self.yaw))
 
-    def getRightDirection(self)-> Vec3:
+    def getRightDirection(self) -> Vec3:
         return Vec3(math.cos(self.yaw), 0, math.sin(self.yaw))

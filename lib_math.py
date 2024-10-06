@@ -4,14 +4,14 @@ import math
 
 class Vec2:
 
-    def __init__(self, x : int, y: int ) -> None:
+    def __init__(self, x: int, y: int) -> None:
         self.x = x
         self.y = y
 
-    def __mul__(self, c : int):
+    def __mul__(self, c: int):
         return Vec2(self.x * c, self.y * c)
 
-    def __truediv__(self, c : int):
+    def __truediv__(self, c: int):
         return Vec2(self.x / c, self.y / c)
 
     def __add__(self, v):
@@ -28,7 +28,7 @@ class Vec2:
 
 class Vec3:
 
-    def __init__(self, x : int, y: int, z: int) -> None:
+    def __init__(self, x: int, y: int, z: int) -> None:
         self.x = x
         self.y = y
         self.z = z
@@ -45,7 +45,7 @@ class Vec3:
     __radd__ = __add__
     __rmul__ = __mul__
 
-    def projection(self, focalLenth : int):
+    def projection(self, focalLenth: int):
         return focalLenth * Vec2(self.x, self.y) / self.z
 
     def rotationX(self, pitch: int):
