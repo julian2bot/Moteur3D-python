@@ -4,6 +4,7 @@ import constante as const
 import keyboard
 import time
 
+from pynput.mouse import Listener
 
 import meshio
 
@@ -41,6 +42,16 @@ for triangle in mesh.cells[0].data:
 
 cam = mg.Camera(Vec3(0, 0, 0), 0, 0)
 
+mouse_dx = 0
+mouse_dy = 0
+
+def on_move(x, y):
+    global mouse_dx, mouse_dy
+    mouse_dx = x  # pos x de la souris
+    mouse_dy = y  # pos y de la souris
+
+listener = Listener(on_move=on_move)
+listener.start()
 
 def inputs(dt: float):
     if keyboard.is_pressed("down arrow"):
@@ -76,9 +87,20 @@ def inputs(dt: float):
 
 
 dernier = 0
-
+def camMove(prev_mouse_x, prev_mouse_y, mouse_dx, mouse_dy):
+    delta_x = mouse_dx - prev_mouse_x
+    delta_y = mouse_dy - prev_mouse_y
+    cam.yaw -= delta_x * const.DEFAULT_DEPLACEMENT * dt
+    cam.pitch -= delta_y * const.DEFAULT_DEPLACEMENT / 3 * dt    
+    prev_mouse_x = mouse_dx
+    prev_mouse_y = mouse_dy
+    print(prev_mouse_x, prev_mouse_y, mouse_dx, mouse_dy, delta_x,delta_y)
+    return prev_mouse_x, prev_mouse_y 
+prev_mouse_x, prev_mouse_y = mouse_dx, mouse_dy
 while True:
     
+    
+
     temps_actuelle = time.time()
     dt = (temps_actuelle - dernier) * 100
     dernier = temps_actuelle
@@ -86,6 +108,7 @@ while True:
     mg.clear(const.BACKGROUND)
 
     inputs(dt)
+    prev_mouse_x, prev_mouse_y = camMove(prev_mouse_x, prev_mouse_y, mouse_dx, mouse_dy)
 
     # mg.putMesh(forme, cam, const.DEFAULT_CHAR)
     mg.putMesh(carre, cam, const.DEFAULT_CHAR)
