@@ -39,8 +39,8 @@ class Vec3:
     __radd__ = __add__
     __rmul__ = __mul__
 
-    def projection(self):
-        return Vec2(self.x, self.y) / self.z
+    def projection(self, focalLenth):
+        return focalLenth*Vec2(self.x, self.y) / self.z
 
     def rotationX(self,pitch):
         y1= math.cos(pitch) * self.y - math.sin(pitch) * self.z
@@ -72,8 +72,8 @@ class Triangle3D:
         self.v2 = v2
         self.v3 = v3
 
-    def projection(self):
-        return Triangle2D(self.v1.projection(),self.v2.projection(),self.v3.projection())
+    def projection(self,focalLenth):
+        return Triangle2D(self.v1.projection(focalLenth),self.v2.projection(focalLenth),self.v3.projection(focalLenth))
     
     def translate(self, v:Vec3):
         return Triangle3D(self.v1+v,self.v2+v,self.v3+v)

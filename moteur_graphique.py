@@ -6,6 +6,23 @@ width, height = os.get_terminal_size()
 height -=1
 pixelBuffer  = [const.BACKGROUND] * (width * height) 
 
+class Camera:
+    def __init__(self, position, pitch, yaw,focalLenth=1) -> None:
+        self.position = position
+        self.pitch = pitch
+        self.yaw = yaw
+        self.focalLenth =focalLenth
+    
+    def getLookAtDirection(self):
+        pass
+
+    def getForwardDirection(self):
+        return Vec3(-math.sin(self.yaw), 0, math.cos(self.yaw))
+
+    def getRightDirection(self):
+        return Vec3( math.cos(self.yaw), 0, math.sin(self.yaw))
+
+
 def draw():
     print(''.join(pixelBuffer), end="")
 
@@ -39,3 +56,6 @@ def putTriangle(tri, char):
                     if(est_dans_le_triangle(tri.v1, tri.v2, tri.v3, pos)):
                         putPixel(pos,char)
 
+def putMesh(mesh:list[Triangle3D], cam, char):
+    for triangle in mesh:
+        putTriangle(triangle.translate(-1*cam.position).rotationY(cam.yaw).rotationX(cam.pitch).projection(cam.focalLenth).toScreen(), char)
