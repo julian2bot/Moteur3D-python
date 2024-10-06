@@ -1,0 +1,2 @@
+#CONSTANTE
+BACKGROUND = ' '

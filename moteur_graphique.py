@@ -1,12 +1,10 @@
 import os
 from lib_math import * 
-#CONSTANTE
-BACKGROUND = ' '
-
+import constante as const
 width, height = os.get_terminal_size()
 
 height -=1
-pixelBuffer  = [BACKGROUND] * (width * height) 
+pixelBuffer  = [const.BACKGROUND] * (width * height) 
 
 def draw():
     print(''.join(pixelBuffer), end="")
@@ -27,10 +25,10 @@ def putTriangle(tri, char):
     def est_dans_le_triangle(v1, v2, v3, p) -> bool:
         return E(v3,v1,p)>0 and E(v2,v3,p)>0 and E(v1,v2,p)>0 or E(v3,v1,p)<0 and E(v2,v3,p)<0 and E(v1,v2,p)<0 
 
-    xmin = round(min(tri.p1.x, tri.p2.x, tri.p3.x))
-    xmax = round(max(tri.p1.x, tri.p2.x, tri.p3.x)+1)
-    ymin = round(min(tri.p1.y, tri.p2.y, tri.p3.y))
-    ymax = round(max(tri.p1.y, tri.p2.y, tri.p3.y)+1)
+    xmin = round(min(tri.v1.x, tri.v2.x, tri.v3.x))
+    xmax = round(max(tri.v1.x, tri.v2.x, tri.v3.x)+1)
+    ymin = round(min(tri.v1.y, tri.v2.y, tri.v3.y))
+    ymax = round(max(tri.v1.y, tri.v2.y, tri.v3.y)+1)
 
     for y in range(ymin,ymax):
         if 0<=y<height:
@@ -38,49 +36,6 @@ def putTriangle(tri, char):
                 if 0<=x<width:
                     pos = Vec2(x,y)
 
-                    if(est_dans_le_triangle(tri.p1, tri.p2, tri.p3, pos)):
+                    if(est_dans_le_triangle(tri.v1, tri.v2, tri.v3, pos)):
                         putPixel(pos,char)
-
-
-
-# putPixel(Vec2(10,10), '#')
-# tri = Triangle(
-#     Vec2(10,10),
-#     Vec2(40,10),
-#     Vec2(40,50)
-# )
-# tri2 = Triangle(
-#         Vec2(10,10),
-#         Vec2(80,15),
-#         Vec2(40,30)
-#     )
-# tri = Triangle(
-#     Vec2(10,10),
-#     Vec2(80,15),
-#     Vec2(40,30)
-# )
-tri = Triangle(
-    Vec2(24,0),
-    Vec2(25,15),
-    Vec2(1,20)
-)
-
-t = 0
-
-while True:
-    t+=0.01
-    clear(BACKGROUND)
-    
-    tri.rotate(0.001)
-
-    putTriangle(tri, "@")
-    draw()
-
-input()
-
-
-
-
-
-
 
