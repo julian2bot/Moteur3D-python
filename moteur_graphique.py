@@ -2,6 +2,7 @@ import os
 from lib_math import *
 import constante as const
 from camera import Camera
+from lightSource import LightSource
 
 width, height = os.get_terminal_size()
 height -= 1
@@ -98,7 +99,14 @@ def clip( triangle, camPos, planeNormal):
             ]
 
 
-def putMesh(mesh: list[Triangle3D], cam: Camera, char: str) -> None:
+lightGradient = ".,;la#@"
+
+def diffuseLight( light: LightSource, normal, v):
+    lightDir = light.position-v
+    intensity = lightDir.normalize().dot(  normal.normalize())
+    return lightGradient[round(intensity*(len(lightGradient)-1))] if intensity >= 0 else lightGradient[0]
+
+def putMesh(mesh: list[Triangle3D], cam: Camera,lightSource :LightSource) -> None:
     
     lookAt = cam.getLookAtDirection()
 
@@ -112,6 +120,8 @@ def putMesh(mesh: list[Triangle3D], cam: Camera, char: str) -> None:
             surfaceNormal = line1.crossProd( line2)
 
             if surfaceNormal.dot(clippedTriangle.v1-cam.position)< 0:
+                lightStr:str = diffuseLight(lightSource, surfaceNormal, clippedTriangle.v1)
+
                 putTriangle(
                     clippedTriangle
                     .translate(-1*cam.position)
@@ -119,4 +129,5 @@ def putMesh(mesh: list[Triangle3D], cam: Camera, char: str) -> None:
                     .rotationX(cam.pitch)
                     .projection(cam.focalLenth)
                     .toScreen(),
-                    char)
+                    lightStr)
+
