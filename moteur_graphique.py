@@ -61,10 +61,10 @@ def clip( triangle, camPos, planeNormal):
         out.append(tri.v2) if vert2>0 else inT.append(tri.v2)
         out.append(tri.v3) if vert3>0 else inT.append(tri.v3)
 
-        return out, inT
+        return out, inT, vert1*vert2>0
     
     zNear = camPos + 0.1*planeNormal
-    out, in_ = inZ(planeNormal,zNear, triangle)
+    out, in_, isInverted = inZ(planeNormal,zNear, triangle)
 
     if(len(out)==0):
         return [triangle]
@@ -73,22 +73,29 @@ def clip( triangle, camPos, planeNormal):
     elif len(out)== 1:
         collision0 = planeNormal.linePlaneIntersection(zNear, out[0], in_[0])
         collision1 = planeNormal.linePlaneIntersection(zNear, out[0], in_[1])
-        return [
-            Triangle3D(collision0, in_[0], collision1),
-            Triangle3D(collision1, in_[0], in_[1])
-        ]
+        if isInverted:
+            return [
+                Triangle3D(collision1, in_[1], collision0),
+                Triangle3D(collision0, in_[1], in_[0])
+            ]
+        else:
+            return [
+                Triangle3D(collision0, in_[0], collision1),
+                Triangle3D(collision1, in_[0], in_[1])
+            ]
 
     elif len(out)== 2:
         collision0 = planeNormal.linePlaneIntersection(zNear, out[0], in_[0])
         collision1 = planeNormal.linePlaneIntersection(zNear, out[1], in_[0])
-
-        return [
-            Triangle3D(collision0, collision1, in_[0]),
-        ]
-
-
-
-
+        
+        if isInverted:
+            return [
+                Triangle3D(collision0, in_[0], collision1),
+            ]
+        else:
+            return [
+                Triangle3D(collision0, collision1, in_[0]),
+            ]
 
 
 def putMesh(mesh: list[Triangle3D], cam: Camera, char: str) -> None:
@@ -98,12 +105,18 @@ def putMesh(mesh: list[Triangle3D], cam: Camera, char: str) -> None:
     for triangle in mesh:
         clippedTriangleList = clip(triangle, cam.position, lookAt)
         
+
         for clippedTriangle in clippedTriangleList:
-            putTriangle(
-                clippedTriangle
-                .translate(-1*cam.position)
-                .rotationY(cam.yaw)
-                .rotationX(cam.pitch)
-                .projection(cam.focalLenth)
-                .toScreen(),
-                 char)
+            line1 =clippedTriangle.v2 - clippedTriangle.v1 
+            line2 =clippedTriangle.v3 - clippedTriangle.v1 
+            surfaceNormal = line1.crossProd( line2)
+
+            if surfaceNormal.dot(clippedTriangle.v1-cam.position)< 0:
+                putTriangle(
+                    clippedTriangle
+                    .translate(-1*cam.position)
+                    .rotationY(cam.yaw)
+                    .rotationX(cam.pitch)
+                    .projection(cam.focalLenth)
+                    .toScreen(),
+                    char)
