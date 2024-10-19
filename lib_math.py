@@ -63,6 +63,7 @@ class Vec3:
         return Vec3(x1, self.y, z1)
     
     def dot(self:'Vec3', v2:'Vec3'):
+        # produit scalaire
         return self.x*v2.x + self.y*v2.y + self.z*v2.z 
     
     def linePlaneIntersection(self, planePoint, v1, v2 ):
@@ -74,6 +75,13 @@ class Vec3:
         si = -self.dot(w)/dotp
         u = si*u
         return v1+u 
+    
+    def crossProd(self,v2):
+        # produit vectoriel
+        return Vec3(
+            self.y * v2.z - self.z * v2.y,
+            self.z * v2.x - self.x * v2.z,
+            self.x * v2.y - self.y * v2.x)
 
 
 class Triangle2D:
