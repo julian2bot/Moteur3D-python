@@ -52,5 +52,5 @@ def putTriangle(tri: Triangle3D, char: str) -> None:
 def putMesh(mesh: list[Triangle3D], cam: Camera, char: str) -> None:
     for triangle in mesh:
         putTriangle(
-            triangle.translate(-1 * cam.position).rotationY(cam.yaw).rotationX(
+            triangle.translate(-1*cam.position).rotationY(cam.yaw).rotationX(
                 cam.pitch).projection(cam.focalLenth).toScreen(), char)
