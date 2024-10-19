@@ -12,7 +12,7 @@ from pynput.mouse import Listener
 
 carre = [
     Triangle3D(Vec3(-0.5, -0.5, 1), Vec3(-0.5, 0.5, 1), Vec3(0.5, 0.5, 1)),
-    Triangle3D(Vec3(-0.5, -0.5, 2), Vec3(0.5, 0.5, -1), Vec3(0.5, -0.5, 1))
+    Triangle3D(Vec3(-0.5, -0.5, 1), Vec3(0.5, 0.5, 1), Vec3(0.5, -0.5, 1))
 ]
 
 
