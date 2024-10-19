@@ -58,7 +58,7 @@ class Vec3:
         return Vec3(self.x, y1, z1)
 
     def rotationY(self, yaw: int) -> 'Vec3':
-        x1 = math.cos(yaw) * self.x - math.sin(yaw) * self.z
+        x1= math.cos(yaw) * self.x + math.sin(yaw) * self.z
         z1 = -math.sin(yaw) * self.x + math.cos(yaw) * self.z
         return Vec3(x1, self.y, z1)
     
@@ -82,7 +82,9 @@ class Vec3:
             self.y * v2.z - self.z * v2.y,
             self.z * v2.x - self.x * v2.z,
             self.x * v2.y - self.y * v2.x)
-
+    def normalize(self):
+        norme = math.sqrt(self.x*self.x + self.y*self.y + self.z*self.z)
+        return Vec3(self.x/norme,self.y/norme,self.z/norme)
 
 class Triangle2D:
 
