@@ -43,6 +43,9 @@ class Vec3:
     def __add__(self, v) -> 'Vec3':
         return Vec3(self.x + v.x, self.y + v.y, self.z + v.z)
 
+    def __sub__(self, v) -> 'Vec3':
+        return Vec3(self.x - v.x, self.y - v.y, self.z - v.z)
+
     __radd__ = __add__
     __rmul__ = __mul__
 
@@ -58,6 +61,19 @@ class Vec3:
         x1 = math.cos(yaw) * self.x - math.sin(yaw) * self.z
         z1 = -math.sin(yaw) * self.x + math.cos(yaw) * self.z
         return Vec3(x1, self.y, z1)
+    
+    def dot(self:'Vec3', v2:'Vec3'):
+        return self.x*v2.x + self.y*v2.y + self.z*v2.z 
+    
+    def linePlaneIntersection(self, planePoint, v1, v2 ):
+        u = v2-v1
+        dotp = self.dot(u)
+        if abs(dotp)<1e-5:
+            return (0,0,0)
+        w = (v1 - planePoint)
+        si = -self.dot(w)/dotp
+        u = si*u
+        return v1+u 
 
 
 class Triangle2D:
@@ -94,3 +110,4 @@ class Triangle3D:
     def rotationY(self, yaw: int) -> 'Triangle3D' :
         return Triangle3D(self.v1.rotationY(yaw), self.v2.rotationY(yaw),
                           self.v3.rotationY(yaw))
+

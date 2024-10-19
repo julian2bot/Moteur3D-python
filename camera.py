@@ -15,7 +15,12 @@ class Camera:
         self.focalLenth = focalLenth
 
     def getLookAtDirection(self):
-        pass
+        return Vec3(
+            -math.sin(self.yaw)*math.cos(self.pitch), 
+            math.sin(self.pitch), 
+            math.cos(self.yaw)*math.cos(self.pitch)
+            )
+        
 
     def getForwardDirection(self) -> Vec3:
         return Vec3(-math.sin(self.yaw), 0, math.cos(self.yaw))

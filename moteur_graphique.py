@@ -48,9 +48,62 @@ def putTriangle(tri: Triangle3D, char: str) -> None:
                     if (est_dans_le_triangle(tri.v1, tri.v2, tri.v3, pos)):
                         putPixel(pos, char)
 
+def clip( triangle, camPos, planeNormal):
+    def inZ(planeNormal,planePoint, tri ):
+        out = [] 
+        inT = [] 
+
+        vert1 = planeNormal.dot(planePoint-tri.v1)
+        vert2 = planeNormal.dot(planePoint-tri.v2)
+        vert3 = planeNormal.dot(planePoint-tri.v3)
+
+        out.append(tri.v1) if vert1>0 else inT.append(tri.v1)
+        out.append(tri.v2) if vert2>0 else inT.append(tri.v2)
+        out.append(tri.v3) if vert3>0 else inT.append(tri.v3)
+
+        return out, inT
+    
+    zNear = camPos + 0.1*planeNormal
+    out, in_ = inZ(planeNormal,zNear, triangle)
+
+    if(len(out)==0):
+        return [triangle]
+    elif (len(out)== 3):
+        return []
+    elif len(out)== 1:
+        collision0 = planeNormal.linePlaneIntersection(zNear, out[0], in_[0])
+        collision1 = planeNormal.linePlaneIntersection(zNear, out[0], in_[1])
+        return [
+            Triangle3D(collision0, in_[0], collision1),
+            Triangle3D(collision1, in_[0], in_[1])
+        ]
+
+    elif len(out)== 2:
+        collision0 = planeNormal.linePlaneIntersection(zNear, out[0], in_[0])
+        collision1 = planeNormal.linePlaneIntersection(zNear, out[1], in_[0])
+
+        return [
+            Triangle3D(collision0, collision1, in_[0]),
+        ]
+
+
+
+
+
 
 def putMesh(mesh: list[Triangle3D], cam: Camera, char: str) -> None:
+    
+    lookAt = cam.getLookAtDirection()
+
     for triangle in mesh:
-        putTriangle(
-            triangle.translate(-1*cam.position).rotationY(cam.yaw).rotationX(
-                cam.pitch).projection(cam.focalLenth).toScreen(), char)
+        clippedTriangleList = clip(triangle, cam.position, lookAt)
+        
+        for clippedTriangle in clippedTriangleList:
+            putTriangle(
+                clippedTriangle
+                .translate(-1*cam.position)
+                .rotationY(cam.yaw)
+                .rotationX(cam.pitch)
+                .projection(cam.focalLenth)
+                .toScreen(),
+                 char)
