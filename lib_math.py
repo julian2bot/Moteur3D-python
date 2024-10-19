@@ -1,7 +1,6 @@
 import moteur_graphique as mg
 import math
 
-from typing import Self
 
 class Vec2:
 
@@ -58,66 +57,67 @@ class Vec3:
         return Vec3(self.x, y1, z1)
 
     def rotationY(self, yaw: int) -> 'Vec3':
-        x1= math.cos(yaw) * self.x + math.sin(yaw) * self.z
+        x1 = math.cos(yaw) * self.x + math.sin(yaw) * self.z
         z1 = -math.sin(yaw) * self.x + math.cos(yaw) * self.z
         return Vec3(x1, self.y, z1)
-    
-    def dot(self:'Vec3', v2:'Vec3'):
+
+    def dot(self: 'Vec3', v2: 'Vec3') -> float:
         # produit scalaire
-        return self.x*v2.x + self.y*v2.y + self.z*v2.z 
-    
-    def linePlaneIntersection(self, planePoint, v1, v2 ):
-        u = v2-v1
+        return self.x * v2.x + self.y * v2.y + self.z * v2.z
+
+    def linePlaneIntersection(self: 'Vec3', planePoint: 'Vec3', v1: 'Vec3',
+                              v2: 'Vec3') -> 'Vec3':
+        u = v2 - v1
         dotp = self.dot(u)
-        if abs(dotp)<1e-5:
-            return (0,0,0)
+        if abs(dotp) < 1e-5:
+            return (0, 0, 0)
         w = (v1 - planePoint)
-        si = -self.dot(w)/dotp
-        u = si*u
-        return v1+u 
-    
-    def crossProd(self,v2):
+        si = -self.dot(w) / dotp
+        u = si * u
+        return v1 + u
+
+    def crossProd(self: 'Vec3', v2: 'Vec3') -> 'Vec3':
         # produit vectoriel
-        return Vec3(
-            self.y * v2.z - self.z * v2.y,
-            self.z * v2.x - self.x * v2.z,
-            self.x * v2.y - self.y * v2.x)
-    def normalize(self):
-        norme = math.sqrt(self.x*self.x + self.y*self.y + self.z*self.z)
-        return Vec3(self.x/norme,self.y/norme,self.z/norme)
+        return Vec3(self.y * v2.z - self.z * v2.y,
+                    self.z * v2.x - self.x * v2.z,
+                    self.x * v2.y - self.y * v2.x)
+
+    def normalize(self: 'Vec3') -> 'Vec3':
+        norme = math.sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
+        return Vec3(self.x / norme, self.y / norme, self.z / norme)
+
 
 class Triangle2D:
 
-    def __init__(self, v1: Vec2, v2: Vec2, v3: Vec2) -> None:
+    def __init__(self: 'Triangle2D', v1: Vec2, v2: Vec2, v3: Vec2) -> None:
         self.v1 = v1
         self.v2 = v2
         self.v3 = v3
 
-    def toScreen(self) -> 'Triangle2D':
+    def toScreen(self: 'Triangle2D') -> 'Triangle2D':
         return Triangle2D(self.v1.toScreen(), self.v2.toScreen(),
                           self.v3.toScreen())
 
 
 class Triangle3D:
 
-    def __init__(self, v1: Vec3, v2: Vec3, v3: Vec3) -> None:
+    def __init__(self: 'Triangle3D', v1: Vec3, v2: Vec3, v3: Vec3) -> None:
         self.v1 = v1
         self.v2 = v2
         self.v3 = v3
 
-    def projection(self, focalLenth: int) -> Triangle2D:
+    def projection(self: 'Triangle3D', focalLenth: int) -> Triangle2D:
         return Triangle2D(self.v1.projection(focalLenth),
                           self.v2.projection(focalLenth),
                           self.v3.projection(focalLenth))
 
-    def translate(self, v: Vec3) -> 'Triangle3D':
+    def translate(self: 'Triangle3D', v: Vec3) -> 'Triangle3D':
         return Triangle3D(self.v1 + v, self.v2 + v, self.v3 + v)
 
-    def rotationX(self, pitch: int) -> 'Triangle3D':
+    def rotationX(self: 'Triangle3D', pitch: int) -> 'Triangle3D':
         return Triangle3D(self.v1.rotationX(pitch), self.v2.rotationX(pitch),
                           self.v3.rotationX(pitch))
 
-    def rotationY(self, yaw: int) -> 'Triangle3D' :
+    def rotationY(self: 'Triangle3D', yaw: int) -> 'Triangle3D':
         return Triangle3D(self.v1.rotationY(yaw), self.v2.rotationY(yaw),
                           self.v3.rotationY(yaw))
-
