@@ -1,4 +1,4 @@
-from lib_math import *
+from lib_math import Triangle3D, Vec3
 
 
 class Loader:
@@ -6,8 +6,8 @@ class Loader:
     def __init__(self: 'Loader') -> None:
         pass
 
-    def loadObj(self: 'Loader', filePath: str) -> list[Triangle3D]:
-        with open(filePath, "r") as file:
+    def load_object(self: 'Loader', file_path: str) -> list[Triangle3D]:
+        with open(file_path, "r", encoding='utf-8') as file:
             lines = [
                 line.rstrip('\n').split(' ') for line in file.readlines()
                 if line.rstrip('\n')
