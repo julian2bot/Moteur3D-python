@@ -1,133 +1,135 @@
 import os
-from lib_math import *
+import lib_math as lb_math
 import constante as const
 from camera import Camera
-from lightSource import LightSource
+from light_source import LightSource
 
 width, height = os.get_terminal_size()
 height -= 1
 
-pixelBuffer = [const.BACKGROUND] * (width * height)
 
+class MoteurGraphique:
 
-def draw() -> None:
-    print(''.join(pixelBuffer), end="")
+    def __init__(self, width_cmd, height_cmd):
+        self.width = width_cmd
+        self.height = height_cmd
+        self.pixel_buffer = [const.BACKGROUND] * (self.width * self.height)
 
+    def draw(self: 'MoteurGraphique') -> None:
+        print(''.join(self.pixel_buffer), end="")
 
-def clear(char: str) -> None:
-    for i in range(width * height):
-        pixelBuffer[i] = char
+    def clear(self: 'MoteurGraphique', char: str) -> None:
+        for i in range(self.width * self.height):
+            self.pixel_buffer[i] = char
 
+    def put_pixel(self: 'MoteurGraphique', v: lb_math.Vec2, char: str) -> None:
+        px = round(v.x)
+        py = round(v.y)
+        if (0 <= px <= self.width and 0 <= py <= self.height):
+            self.pixel_buffer[py * self.width + px] = char
 
-def putPixel(V: Vec2, char: str) -> None:
-    px = round(V.x)
-    py = round(V.y)
-    if (0 <= px <= width and 0 <= py <= height):
-        pixelBuffer[py * width + px] = char
+    def put_triangle(self: 'MoteurGraphique', tri: lb_math.Triangle3D,
+                     char: str) -> None:
 
+        def e(p: lb_math.Vec2, a: lb_math.Vec2, b: lb_math.Vec2) -> int:
+            return (a.x - p.x) * (b.y - p.y) - (a.y - p.y) * (b.x - p.x)
 
-def putTriangle(tri: Triangle3D, char: str) -> None:
+        def est_dans_le_triangle(v1: lb_math.Vec2, v2: lb_math.Vec2,
+                                 v3: lb_math.Vec2, p: lb_math.Vec2) -> bool:
+            return e(v3, v1, p) > 0 and e(v2, v3, p) > 0 and e(
+                v1, v2, p) > 0 or e(v3, v1, p) < 0 and e(v2, v3, p) < 0 and e(
+                    v1, v2, p) < 0
 
-    def E(p: Vec2, a: Vec2, b: Vec2) -> int:
-        return (a.x - p.x) * (b.y - p.y) - (a.y - p.y) * (b.x - p.x)
+        xmin = round(min(tri.v1.x, tri.v2.x, tri.v3.x))
+        xmax = round(max(tri.v1.x, tri.v2.x, tri.v3.x) + 1)
+        ymin = round(min(tri.v1.y, tri.v2.y, tri.v3.y))
+        ymax = round(max(tri.v1.y, tri.v2.y, tri.v3.y) + 1)
 
-    def est_dans_le_triangle(v1: Vec2, v2: Vec2, v3: Vec2, p: Vec2) -> bool:
-        return E(v3, v1, p) > 0 and E(v2, v3, p) > 0 and E(v1, v2, p) > 0 or E(
-            v3, v1, p) < 0 and E(v2, v3, p) < 0 and E(v1, v2, p) < 0
+        for y in range(ymin, ymax):
+            if 0 <= y < self.height:
+                for x in range(xmin, xmax):
+                    if 0 <= x < self.width:
+                        pos = lb_math.Vec2(x, y)
 
-    xmin = round(min(tri.v1.x, tri.v2.x, tri.v3.x))
-    xmax = round(max(tri.v1.x, tri.v2.x, tri.v3.x) + 1)
-    ymin = round(min(tri.v1.y, tri.v2.y, tri.v3.y))
-    ymax = round(max(tri.v1.y, tri.v2.y, tri.v3.y) + 1)
+                        if est_dans_le_triangle(tri.v1, tri.v2, tri.v3, pos):
+                            self.put_pixel(pos, char)
 
-    for y in range(ymin, ymax):
-        if 0 <= y < height:
-            for x in range(xmin, xmax):
-                if 0 <= x < width:
-                    pos = Vec2(x, y)
+    def clip(self: 'MoteurGraphique', triangle: lb_math.Triangle3D,
+             cam_pos: lb_math.Vec3,
+             plane_normal: lb_math.Vec3) -> list[lb_math.Triangle3D]:
 
-                    if (est_dans_le_triangle(tri.v1, tri.v2, tri.v3, pos)):
-                        putPixel(pos, char)
+        def in_z(
+            plane_normal: lb_math.Vec3, plane_point: lb_math.Vec3,
+            tri: lb_math.Triangle3D
+        ) -> tuple[list[lb_math.Vec3], list[lb_math.Vec3], bool]:
 
-def clip( triangle, camPos, planeNormal):
-    def inZ(planeNormal,planePoint, tri ):
-        out = [] 
-        inT = [] 
+            out = []
+            in_t = []
 
-        vert1 = planeNormal.dot(planePoint-tri.v1)
-        vert2 = planeNormal.dot(planePoint-tri.v2)
-        vert3 = planeNormal.dot(planePoint-tri.v3)
+            vert1 = plane_normal.dot(plane_point - tri.v1)
+            vert2 = plane_normal.dot(plane_point - tri.v2)
+            vert3 = plane_normal.dot(plane_point - tri.v3)
 
-        out.append(tri.v1) if vert1>0 else inT.append(tri.v1)
-        out.append(tri.v2) if vert2>0 else inT.append(tri.v2)
-        out.append(tri.v3) if vert3>0 else inT.append(tri.v3)
+            out.append(tri.v1) if vert1 > 0 else in_t.append(tri.v1)
+            out.append(tri.v2) if vert2 > 0 else in_t.append(tri.v2)
+            out.append(tri.v3) if vert3 > 0 else in_t.append(tri.v3)
 
-        return out, inT, vert1*vert2>0
-    
-    zNear = camPos + 0.1*planeNormal
-    out, in_, isInverted = inZ(planeNormal,zNear, triangle)
+            return out, in_t, vert1 * vert2 > 0
 
-    if(len(out)==0):
-        return [triangle]
-    elif (len(out)== 3):
-        return []
-    elif len(out)== 1:
-        collision0 = planeNormal.linePlaneIntersection(zNear, out[0], in_[0])
-        collision1 = planeNormal.linePlaneIntersection(zNear, out[0], in_[1])
-        if isInverted:
+        z_near = cam_pos + 0.1 * plane_normal
+        out, in_, is_inverted = in_z(plane_normal, z_near, triangle)
+
+        if len(out) == 0:
+            return [triangle]
+        if len(out) == 3:
+            return []
+        if len(out) == 1:
+            collision0 = plane_normal.line_plane_intersection(
+                z_near, out[0], in_[0])
+            collision1 = plane_normal.line_plane_intersection(
+                z_near, out[0], in_[1])
+            if is_inverted:
+                return [
+                    lb_math.Triangle3D(collision1, in_[1], collision0),
+                    lb_math.Triangle3D(collision0, in_[1], in_[0])
+                ]
             return [
-                Triangle3D(collision1, in_[1], collision0),
-                Triangle3D(collision0, in_[1], in_[0])
+                lb_math.Triangle3D(collision0, in_[0], collision1),
+                lb_math.Triangle3D(collision1, in_[0], in_[1])
             ]
-        else:
+
+        if len(out) == 2:
+            collision0 = plane_normal.line_plane_intersection(
+                z_near, out[0], in_[0])
+            collision1 = plane_normal.line_plane_intersection(
+                z_near, out[1], in_[0])
+
+            if is_inverted:
+                return [
+                    lb_math.Triangle3D(collision0, in_[0], collision1),
+                ]
             return [
-                Triangle3D(collision0, in_[0], collision1),
-                Triangle3D(collision1, in_[0], in_[1])
+                lb_math.Triangle3D(collision0, collision1, in_[0]),
             ]
 
-    elif len(out)== 2:
-        collision0 = planeNormal.linePlaneIntersection(zNear, out[0], in_[0])
-        collision1 = planeNormal.linePlaneIntersection(zNear, out[1], in_[0])
-        
-        if isInverted:
-            return [
-                Triangle3D(collision0, in_[0], collision1),
-            ]
-        else:
-            return [
-                Triangle3D(collision0, collision1, in_[0]),
-            ]
+    def put_mesh(self: 'MoteurGraphique', mesh: list[lb_math.Triangle3D],
+                 cam: Camera, light_source: LightSource) -> None:
 
+        look_at = cam.get_look_at_direction()
 
-lightGradient = ".,;la#@"
+        for triangle in mesh:
+            clipped_triangle_list = self.clip(triangle, cam.position, look_at)
 
-def diffuseLight( light: LightSource, normal, v):
-    lightDir = light.position-v
-    intensity = lightDir.normalize().dot(  normal.normalize())
-    return lightGradient[round(intensity*(len(lightGradient)-1))] if intensity >= 0 else lightGradient[0]
+            for clipped_triangle in clipped_triangle_list:
+                line1 = clipped_triangle.v2 - clipped_triangle.v1
+                line2 = clipped_triangle.v3 - clipped_triangle.v1
+                surface_normal = line1.cross_prod(line2)
 
-def putMesh(mesh: list[Triangle3D], cam: Camera,lightSource :LightSource) -> None:
-    
-    lookAt = cam.getLookAtDirection()
-
-    for triangle in mesh:
-        clippedTriangleList = clip(triangle, cam.position, lookAt)
-        
-
-        for clippedTriangle in clippedTriangleList:
-            line1 =clippedTriangle.v2 - clippedTriangle.v1 
-            line2 =clippedTriangle.v3 - clippedTriangle.v1 
-            surfaceNormal = line1.crossProd( line2)
-
-            if surfaceNormal.dot(clippedTriangle.v1-cam.position)< 0:
-                lightStr:str = diffuseLight(lightSource, surfaceNormal, clippedTriangle.v1)
-
-                putTriangle(
-                    clippedTriangle
-                    .translate(-1*cam.position)
-                    .rotationY(cam.yaw)
-                    .rotationX(cam.pitch)
-                    .projection(cam.focalLenth)
-                    .toScreen(),
-                    lightStr)
-
+                if surface_normal.dot(clipped_triangle.v1 - cam.position) < 0:
+                    light_str: str = light_source.diffuse_light(
+                        surface_normal, clipped_triangle.v1)
+                    self.put_triangle(
+                        clipped_triangle.translate(
+                            -1 * cam.position).rotation_y(cam.yaw).rotation_x(
+                                cam.pitch).projection(
+                                    cam.focal_lenth).to_screen(), light_str)

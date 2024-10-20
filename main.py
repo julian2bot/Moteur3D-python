@@ -1,105 +1,62 @@
-import moteur_graphique as mg
-from lib_math import *
-import constante as const
-import keyboard
 import time
-import loader
 from pynput.mouse import Listener
+import moteur_graphique as mg
+from lib_math import Vec3, Triangle3D
+import constante as const
+import loader
 
 
-# tri = Triangle3D(Vec3(-0.5, -0.5, 1.5), Vec3(0, 0.5, 1.5),
-#                  Vec3(0.5, -0.5, 1.5))
+class Main:
 
-carre = [
-    Triangle3D(Vec3(-0.5, -0.5, 1), Vec3(-0.5, 0.5, 1), Vec3(0.5, 0.5, 1)),
-    Triangle3D(Vec3(-0.5, -0.5, 1), Vec3(0.5, 0.5, 1), Vec3(0.5, -0.5, 1))
-]
+    def __init__(self: 'Main', graphics_engine: mg.MoteurGraphique,
+                 triangle_list: list[Triangle3D], camera: mg.Camera,
+                 light_source: mg.LightSource) -> None:
+        self.moteur_graphique = graphics_engine
+        self.cam = camera
+        self.triangles = triangle_list
+        self.dernier = 0
+        self.light = light_source
+        # souris a faire
+        self.listener = Listener(on_move=self.cam.on_move)
 
-llight= mg.LightSource(Vec3(0,20,0))
+        self.mouse_dx = 0
+        self.mouse_dy = 0
+        self.prev_mouse_x, self.prev_mouse_y = self.mouse_dx, self.mouse_dy
 
-cam = mg.Camera(Vec3(0, 0,-2), 0, -2.0)
+    def lunch(self: 'Main') -> None:
+        # souris a faire
 
-mouse_dx = 0
-mouse_dy = 0
+        # listener = Listener(on_move=self.cam.on_move)
+        # listener.start()
+        self.listener.start()
+        while True:
+            # time.sleep(0.01)
 
-def on_move(x, y):
-    global mouse_dx, mouse_dy
-    mouse_dx = x  # pos x de la souris
-    mouse_dy = y  # pos y de la souris
-
-listener = Listener(on_move=on_move)
-listener.start()
-
-def inputs(dt: float):
-    if keyboard.is_pressed("down arrow"):
-        if cam.pitch > -const.PI_SUR_DEUX:
-            cam.pitch -= const.DEFAULT_DEPLACEMENT * dt
-    if keyboard.is_pressed("up arrow"):
-        if cam.pitch < const.PI_SUR_DEUX:
-            cam.pitch += const.DEFAULT_DEPLACEMENT * dt
-
-    if keyboard.is_pressed("left arrow"):
-        cam.yaw += const.DEFAULT_DEPLACEMENT * dt
-    if keyboard.is_pressed("right arrow"):
-        cam.yaw -= const.DEFAULT_DEPLACEMENT * dt
-
-    if keyboard.is_pressed("z"):
-        cam.position += cam.getForwardDirection(
-        ) * const.DEFAULT_DEPLACEMENT * dt
-    if keyboard.is_pressed("s"):
-        cam.position += -1 * cam.getForwardDirection(
-        ) * const.DEFAULT_DEPLACEMENT * dt
-
-    if keyboard.is_pressed("d"):
-        cam.position += cam.getRightDirection(
-        ) * const.DEFAULT_DEPLACEMENT * dt
-    if keyboard.is_pressed("q"):
-        cam.position += -1 * cam.getRightDirection(
-        ) * const.DEFAULT_DEPLACEMENT * dt
-
-    if keyboard.is_pressed("space"):
-        cam.position.y += const.DEFAULT_DEPLACEMENT * dt
-    if keyboard.is_pressed("shift"):
-        cam.position.y -= const.DEFAULT_DEPLACEMENT * dt
-
-    # if keyboard.is_pressed("a"):
-    #     cam.focalLenth += .1 * dt
-    # if keyboard.is_pressed("e"):
-    #     cam.focalLenth -= .1 * dt
-
-    if keyboard.is_pressed("c"):
-        exit()
+            temps_actuelle = time.time()
+            dt = (temps_actuelle - self.dernier) * 100
+            self.dernier = temps_actuelle
+            self.moteur_graphique.clear(const.BACKGROUND)
+            self.cam.inputs(dt)
+            # souris a faire
+            self.cam.prev_mouse_x, self.cam.prev_mouse_y = self.cam.cam_move(
+                self.cam.prev_mouse_x, self.cam.prev_mouse_y,
+                self.cam.mouse_dx, self.cam.mouse_dy, dt)
+            self.moteur_graphique.put_mesh(self.triangles, self.cam,
+                                           self.light)
+            self.moteur_graphique.draw()
 
 
-dernier = 0
-def camMove(prev_mouse_x, prev_mouse_y, mouse_dx, mouse_dy):
-    delta_x = mouse_dx - prev_mouse_x
-    delta_y = mouse_dy - prev_mouse_y
-    cam.yaw -= delta_x * const.DEFAULT_DEPLACEMENT / 2 * dt
-    cam.pitch -= delta_y * const.DEFAULT_DEPLACEMENT / 3 * dt    
-    prev_mouse_x = mouse_dx
-    prev_mouse_y = mouse_dy
-    return prev_mouse_x, prev_mouse_y 
+if __name__ == "__main__":
 
-prev_mouse_x, prev_mouse_y = mouse_dx, mouse_dy
+    moteur_graphique = mg.MoteurGraphique(mg.width, mg.height)
 
-load = loader.Loader()
-cube = load.loadObj("cube.obj")
+    light = mg.LightSource(Vec3(10, 20, 0))
+    load = loader.Loader()
+    cube = load.load_object("cube.obj")
+    cam = mg.Camera(Vec3(0, 0, -2), 0, -2.0)
 
-while True:
-    fps = 40
-    # time.sleep(0.01)
-
-    temps_actuelle = time.time()
-    dt = (temps_actuelle - dernier) * 100
-    dernier = temps_actuelle
-    mg.clear(const.BACKGROUND)
-    inputs(dt)
-    prev_mouse_x, prev_mouse_y = camMove(prev_mouse_x, prev_mouse_y, mouse_dx, mouse_dy)
-
-    # mg.putMesh(forme, cam, const.DEFAULT_CHAR)
-    # mg.putMesh(carre, cam,llight)
-    mg.putMesh(cube, cam,llight)
-    mg.draw()
-
-input()
+    game = Main(moteur_graphique,
+                triangle_list=cube,
+                camera=cam,
+                light_source=light)
+    game.lunch()
