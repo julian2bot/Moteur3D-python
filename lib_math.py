@@ -81,9 +81,11 @@ class Vec3:
         return Vec3(self.y * v2.z - self.z * v2.y,
                     self.z * v2.x - self.x * v2.z,
                     self.x * v2.y - self.y * v2.x)
+    def lenght(self: 'Vec3') -> float:
+        return math.sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
 
     def normalize(self: 'Vec3') -> 'Vec3':
-        norme = math.sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
+        norme = self.lenght()
         return Vec3(self.x / norme, self.y / norme, self.z / norme)
 
 
