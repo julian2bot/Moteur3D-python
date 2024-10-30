@@ -12,6 +12,16 @@ class Camera:
                  pitch: float,
                  yaw: float,
                  focal_lenth: int = 1) -> None:
+        """
+            creation de la camera par rapport a ca position, angle et distance focal initialle
+
+        Args:
+            self (Camera): camera
+            position (Vec3): position x, y et z
+            pitch (float): angle pitch
+            yaw (float): angle yaw
+            focal_lenth (int, optional): distance focal. Defaults to 1.
+        """
         self.position = position
         self.pitch = pitch
         self.yaw = yaw
@@ -28,17 +38,71 @@ class Camera:
         self.has_jumped = False
 
     def get_look_at_direction(self: 'Camera') -> Vec3:
+        """
+            ...
+        Args:
+            self (Camera): camera
+
+        Returns:
+            Vec3: vecteur en face de la camera
+        """
         return Vec3(-math.sin(self.yaw) * math.cos(self.pitch),
                     math.sin(self.pitch),
                     math.cos(self.yaw) * math.cos(self.pitch))
 
     def get_forward_direction(self: 'Camera') -> Vec3:
+        """
+            renvoie le vecteur qui est en face de la camera, selon l'orientation de la camera
+                via la trigonométrie et module math
+        Args:
+            self (Camera): camera
+
+        Returns:
+            Vec3: vecteur en face de la camera
+        """
         return Vec3(-math.sin(self.yaw), 0, math.cos(self.yaw))
 
     def get_right_direction(self: 'Camera') -> Vec3:
+        """
+            renvoie le vecteur qui est a droite de la camera, selon l'orientation de la camera
+                via la trigonométrie et module math
+
+        Args:
+            self (Camera): camera
+
+        Returns:
+            Vec3: vecteur a droite de la camera
+        """
         return Vec3(math.cos(self.yaw), 0, math.sin(self.yaw))
 
     def inputs(self: 'Camera', dt: float) -> None:
+        """
+            gere la position, angles de la camera par rapport au touche du clavier
+                gestion des touches via le module keyboard
+
+            les touches:
+
+            z ==> avancer
+            q ==> aller a gauche
+            s ==> reculer 
+            d ==> aller a droite
+
+            fleche haut   ==> orientation sur l'axe x, regarder en haut  
+            fleche bas    ==> orientation sur l'axe x, regarder en bas
+            fleche gauche ==> orientation sur l'axe y, regarder a gauche
+            fleche droite ==> orientation sur l'axe y, regarder a droite
+
+            espace ==> monter   
+            shift  ==> descendre
+
+            c  ==> quitter le programme (car les touches sont capté par python 
+                et plus par le cmd donc sans ca nous pouvont pas quitter)
+
+        Args:
+            self (Camera): camera
+            dt (float): un temps
+        """
+        
         if keyboard.is_pressed("down arrow"):
             if self.pitch > -const.PI_SUR_DEUX:
                 self.pitch -= const.DEFAULT_DEPLACEMENT * dt
@@ -93,6 +157,20 @@ class Camera:
 
     def cam_move(self: 'Camera', prev_mouse_x: int, prev_mouse_y: int,
                  mouse_dx: int, mouse_dy: int, dt: float) -> tuple[int, int]:
+        """ 
+            mouvement de la camera par rapport a la souris
+
+        Args:
+            self (Camera): Camera
+            prev_mouse_x (int): pos x de la souris avant
+            prev_mouse_y (int): pos y de la souris avant
+            mouse_dx (int): pos x de la souris maintenant 
+            mouse_dy (int): pos y de la souris maintenant 
+            dt (float): interval de temps
+
+        Returns:
+            tuple[int, int]: envoie les positions actuelle de la souris
+        """
         delta_x = mouse_dx - prev_mouse_x
         delta_y = mouse_dy - prev_mouse_y
         self.yaw -= delta_x * const.DEFAULT_DEPLACEMENT / 2 * dt
@@ -102,10 +180,26 @@ class Camera:
         return prev_mouse_x, prev_mouse_y
 
     def on_move(self: 'Camera', x: int, y: int) -> None:
+        """ position de la souris sur l'ecran selon pos x et y
 
+        Args:
+            self (Camera): camera
+            x (int): position x de la souris 
+            y (int): position y de la souris 
+        """
         self.mouse_dx = x  # pos x de la souris
         self.mouse_dy = y  # pos y de la souris
         # return self.mouse_dx, self.mouse_dy
 
-    def __str__(self):
+    def __str__(self: 'Camera'):
+        """ renvoie une texte avec la position x y z et l'angle yaw et pitch de la camera
+
+        Returns:
+            str: texte position + angle camera
+        """
         return ""+str(self.position.x) +" "+ str(self.position.y) +" "+ str(self.position.z) + " "+str(self.yaw)+ " "+ str(self.pitch)  
+
+        
+        
+        
+        
