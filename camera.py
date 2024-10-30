@@ -21,6 +21,12 @@ class Camera:
         self.prev_mouse_x = 0
         self.prev_mouse_y = 0
 
+        # a revoir
+        self.jump_max = 2
+        self.jump = 0.2
+        self.is_jumping = False
+        self.has_jumped = False
+
     def get_look_at_direction(self: 'Camera') -> Vec3:
         return Vec3(-math.sin(self.yaw) * math.cos(self.pitch),
                     math.sin(self.pitch),
@@ -59,16 +65,29 @@ class Camera:
             self.position += -1 * self.get_right_direction(
             ) * const.DEFAULT_DEPLACEMENT * dt
 
-        if keyboard.is_pressed("space"):
-            self.position.y += const.DEFAULT_DEPLACEMENT * dt
-        if keyboard.is_pressed("shift"):
-            self.position.y -= const.DEFAULT_DEPLACEMENT * dt
+
+        # a revoir
+        if keyboard.is_pressed("space") \
+                and self.position.y < self.jump and self.has_jumped == False:
+            if self.is_jumping == False:
+                self.jump = self.position.y + self.jump_max              
+                self.is_jumping = True
+            self.position.y += const.DEFAULT_JUMP * dt
+        else:
+            self.is_jumping = False
+            self.has_jumped = True
+
+        
+        
+        if keyboard.is_pressed("shift") and self.position.y >= 0.2:
+            self.position.y -= const.DEFAULT_GRAVITE * dt
 
         # if keyboard.is_pressed("a"):
         #     self.focalLenth += .1 * dt
         # if keyboard.is_pressed("e"):
         #     self.focalLenth -= .1 * dt
-
+        
+        # gravité
         if keyboard.is_pressed("c"):
             sys.exit()
 
@@ -87,3 +106,6 @@ class Camera:
         self.mouse_dx = x  # pos x de la souris
         self.mouse_dy = y  # pos y de la souris
         # return self.mouse_dx, self.mouse_dy
+
+    def __str__(self):
+        return ""+str(self.position.x) +" "+ str(self.position.y) +" "+ str(self.position.z) + " "+str(self.yaw)+ " "+ str(self.pitch)  

@@ -13,3 +13,5 @@ class LightSource:
         return LIGHT_GRADIENT[round(
             intensity * (len(LIGHT_GRADIENT) -
                          1))] if intensity >= 0 else LIGHT_GRADIENT[0]
+    def move(self, dt):
+        self.position.z -= dt/100 

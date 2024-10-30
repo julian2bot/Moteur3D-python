@@ -114,7 +114,13 @@ class MoteurGraphique:
 
     def put_mesh(self: 'MoteurGraphique', mesh: list[lb_math.Triangle3D],
                  cam: Camera, light_source: LightSource) -> None:
-
+        def distanceTriangleCam(triangle) -> float:
+            position = (1/3) * (triangle.v1+triangle.v2+triangle.v3) - cam.position
+            if position.lenght() <=0:
+                print(position.lenght())
+            return position.lenght()
+        
+        mesh.sort(key=distanceTriangleCam, reverse=True)
         look_at = cam.get_look_at_direction()
 
         for triangle in mesh:
